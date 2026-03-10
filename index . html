@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bagphat Football Academy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green: #1a7a2e;
+      --green-bright: #25b042;
+      --gold: #f5c518;
+      --dark: #0a0f0d;
+      --dark2: #111a14;
+      --white: #f0f4f1;
+      --grey: #8a9e8f;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--dark);
+      color: var(--white);
+      font-family: 'Barlow', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 4rem;
+      background: linear-gradient(to bottom, rgba(10,15,13,0.95), transparent);
+      backdrop-filter: blur(4px);
+    }
+    .nav-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.5rem; font-weight: 900;
+      letter-spacing: 0.04em;
+      color: var(--white);
+    }
+    .nav-logo span { color: var(--gold); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.95rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--grey); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-cta {
+      background: var(--green-bright); color: var(--dark);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.9rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.6rem 1.6rem; border: none; cursor: pointer;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--gold); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      position: relative; overflow: hidden;
+      padding: 8rem 4rem 4rem;
+    }
+
+    /* Field lines background */
+    .hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 70% 50%, rgba(26,122,46,0.12) 0%, transparent 70%),
+        repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(37,176,66,0.04) 79px, rgba(37,176,66,0.04) 80px),
+        repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(37,176,66,0.04) 79px, rgba(37,176,66,0.04) 80px);
+      pointer-events: none;
+    }
+
+    /* Large field circle */
+    .field-circle {
+      position: absolute;
+      right: -10vw; top: 50%;
+      transform: translateY(-50%);
+      width: 65vw; height: 65vw;
+      border: 1.5px solid rgba(37,176,66,0.12);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: rotate 60s linear infinite;
+    }
+    .field-circle::before {
+      content: '';
+      position: absolute; inset: 10%;
+      border: 1px solid rgba(245,197,24,0.07);
+      border-radius: 50%;
+    }
+    @keyframes rotate { to { transform: translateY(-50%) rotate(360deg); } }
+
+    .hero-tag {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--green-bright);
+      display: flex; align-items: center; gap: 0.8rem;
+      margin-bottom: 1.5rem;
+      opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
+    }
+    .hero-tag::before {
+      content: '';
+      width: 36px; height: 2px;
+      background: var(--green-bright);
+    }
+
+    .hero-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(4rem, 10vw, 9rem);
+      font-weight: 900;
+      line-height: 0.92;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      max-width: 700px;
+      opacity: 0; animation: fadeUp 0.8s 0.4s forwards;
+    }
+    .hero-title em {
+      font-style: normal;
+      color: var(--gold);
+      display: block;
+    }
+
+    .hero-sub {
+      margin-top: 2rem;
+      font-size: 1.1rem; font-weight: 300;
+      color: var(--grey); max-width: 420px; line-height: 1.7;
+      opacity: 0; animation: fadeUp 0.8s 0.6s forwards;
+    }
+
+    .hero-actions {
+      display: flex; gap: 1.2rem; align-items: center;
+      margin-top: 3rem;
+      opacity: 0; animation: fadeUp 0.8s 0.8s forwards;
+    }
+    .btn-primary {
+      background: var(--green-bright); color: var(--dark);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 1rem 2.4rem; border: none; cursor: pointer;
+      clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+      transition: all 0.2s;
+    }
+    .btn-primary:hover { background: var(--gold); transform: translateY(-2px); }
+    .btn-secondary {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--grey); background: transparent; border: none; cursor: pointer;
+      display: flex; align-items: center; gap: 0.6rem;
+      transition: color 0.2s;
+    }
+    .btn-secondary:hover { color: var(--white); }
+    .btn-secondary::before {
+      content: '▶';
+      font-size: 0.7rem;
+      color: var(--green-bright);
+    }
+
+    .hero-stats {
+      display: flex; gap: 4rem; margin-top: 5rem;
+      opacity: 0; animation: fadeUp 0.8s 1s forwards;
+    }
+    .stat-item {}
+    .stat-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2.8rem; font-weight: 900;
+      color: var(--white); line-height: 1;
+    }
+    .stat-num span { color: var(--gold); }
+    .stat-label {
+      font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--grey); margin-top: 0.3rem;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── MARQUEE ── */
+    .marquee-wrapper {
+      background: var(--green);
+      padding: 0.9rem 0;
+      overflow: hidden;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .marquee-track {
+      display: flex; gap: 3rem;
+      animation: marquee 25s linear infinite;
+      white-space: nowrap;
+    }
+    .marquee-item {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      flex-shrink: 0;
+    }
+    .marquee-dot { color: var(--gold); }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── SECTIONS ── */
+    section { padding: 6rem 4rem; }
+    .section-tag {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--green-bright);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 900; text-transform: uppercase;
+      line-height: 1;
+    }
+
+    /* ── PROGRAMS ── */
+    #programs { background: var(--dark2); }
+    .programs-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; margin-bottom: 3.5rem;
+    }
+    .programs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+    }
+    .program-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 2.5rem 2rem;
+      position: relative; overflow: hidden;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+    .program-card:hover { background: rgba(26,122,46,0.12); }
+    .program-card:hover .program-icon { color: var(--gold); }
+    .program-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 4rem; font-weight: 900;
+      color: rgba(255,255,255,0.04);
+      position: absolute; top: 1rem; right: 1.5rem;
+      line-height: 1;
+    }
+    .program-icon { font-size: 2rem; margin-bottom: 1.2rem; transition: color 0.3s; }
+    .program-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.4rem; font-weight: 800;
+      text-transform: uppercase; margin-bottom: 0.8rem;
+    }
+    .program-desc {
+      font-size: 0.9rem; font-weight: 300;
+      color: var(--grey); line-height: 1.7;
+    }
+    .program-age {
+      display: inline-block; margin-top: 1.2rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--green-bright);
+      border: 1px solid rgba(37,176,66,0.3);
+      padding: 0.25rem 0.8rem;
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem; align-items: center;
+    }
+    .about-visual {
+      position: relative;
+      aspect-ratio: 4/5;
+    }
+    .about-box {
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg, var(--green) 0%, var(--dark2) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8rem;
+      position: relative;
+    }
+    .about-box::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 10px,
+        rgba(255,255,255,0.02) 10px,
+        rgba(255,255,255,0.02) 11px
+      );
+    }
+    .about-accent {
+      position: absolute;
+      bottom: -1.5rem; right: -1.5rem;
+      width: 60%; height: 60%;
+      border: 2px solid var(--gold);
+      z-index: -1;
+    }
+    .about-content .section-title { margin-bottom: 1.5rem; }
+    .about-text {
+      color: var(--grey); font-size: 1rem;
+      line-height: 1.8; margin-bottom: 1rem;
+    }
+    .about-pillars {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem; margin-top: 2rem;
+    }
+    .pillar {
+      background: rgba(255,255,255,0.03);
+      border-left: 3px solid var(--green-bright);
+      padding: 1rem 1.2rem;
+    }
+    .pillar-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem; font-weight: 800;
+      text-transform: uppercase; margin-bottom: 0.3rem;
+    }
+    .pillar-desc { font-size: 0.8rem; color: var(--grey); }
+
+    /* ── COACHES ── */
+    #coaches { background: var(--dark2); text-align: center; }
+    #coaches .section-title { margin-bottom: 0.5rem; }
+    #coaches .section-sub {
+      color: var(--grey); font-size: 1rem;
+      margin-bottom: 3.5rem;
+    }
+    .coaches-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem; margin-top: 3rem;
+    }
+    .coach-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 2rem;
+      transition: transform 0.3s;
+    }
+    .coach-card:hover { transform: translateY(-6px); }
+    .coach-avatar {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, var(--green), var(--dark2));
+      border-radius: 50%;
+      margin: 0 auto 1.2rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      border: 2px solid rgba(37,176,66,0.3);
+    }
+    .coach-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.3rem; font-weight: 800;
+      text-transform: uppercase;
+    }
+    .coach-role {
+      font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--green-bright); margin: 0.3rem 0 0.8rem;
+    }
+    .coach-bio { font-size: 0.88rem; color: var(--grey); line-height: 1.6; }
+
+    /* ── ENROLL CTA ── */
+    #enroll {
+      background: linear-gradient(135deg, var(--green) 0%, #0d4a1a 100%);
+      text-align: center; position: relative; overflow: hidden;
+    }
+    #enroll::before {
+      content: '⚽';
+      position: absolute;
+      font-size: 30vw;
+      opacity: 0.05;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    #enroll .section-title { font-size: clamp(2.5rem, 6vw, 5rem); margin-bottom: 1rem; }
+    #enroll .section-sub {
+      color: rgba(255,255,255,0.7); font-size: 1rem;
+      max-width: 500px; margin: 0 auto 2.5rem; line-height: 1.7;
+    }
+    .enroll-form {
+      display: flex; gap: 0; max-width: 480px; margin: 0 auto;
+    }
+    .enroll-input {
+      flex: 1;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-right: none;
+      padding: 1rem 1.4rem;
+      color: var(--white);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .enroll-input::placeholder { color: rgba(255,255,255,0.4); }
+    .enroll-btn {
+      background: var(--gold); color: var(--dark);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.95rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 1rem 1.8rem; border: none; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .enroll-btn:hover { background: var(--white); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #050807;
+      padding: 3rem 4rem;
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .footer-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.3rem; font-weight: 900;
+    }
+    .footer-logo span { color: var(--gold); }
+    .footer-links { display: flex; gap: 2rem; }
+    .footer-links a {
+      font-size: 0.85rem; color: var(--grey);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--white); }
+    .footer-copy {
+      font-size: 0.8rem; color: rgba(255,255,255,0.25);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      section, .hero { padding: 4rem 1.5rem; }
+      .programs-grid, .coaches-grid { grid-template-columns: 1fr; }
+      #about { grid-template-columns: 1fr; gap: 3rem; }
+      .hero-stats { gap: 2rem; flex-wrap: wrap; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+      .enroll-form { flex-direction: column; }
+      .enroll-input { border-right: 1px solid rgba(255,255,255,0.2); border-bottom: none; }
+      .programs-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .about-visual { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">BAGPHAT <span>FA</span></div>
+  <ul class="nav-links">
+    <li><a href="#programs">Programs</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#coaches">Coaches</a></li>
+    <li><a href="#enroll">Contact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('enroll').scrollIntoView({behavior:'smooth'})">Enroll Now</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="field-circle"></div>
+  <div class="hero-tag">Bagphat, Uttar Pradesh</div>
+  <h1 class="hero-title">
+    Build Your<br>
+    <em>Legacy</em>
+    on the Pitch
+  </h1>
+  <p class="hero-sub">
+    Elite football training for the next generation of champions. Discipline, skill, and passion — forged every day on the field.
+  </p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.getElementById('enroll').scrollIntoView({behavior:'smooth'})">Join the Academy</button>
+    <button class="btn-secondary" onclick="document.getElementById('programs').scrollIntoView({behavior:'smooth'})">View Programs</button>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-num">500<span>+</span></div>
+      <div class="stat-label">Players Trained</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">12<span>+</span></div>
+      <div class="stat-label">Expert Coaches</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">8<span>+</span></div>
+      <div class="stat-label">Years of Excellence</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">30<span>+</span></div>
+      <div class="stat-label">Trophies Won</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrapper">
+  <div class="marquee-track">
+    <span class="marquee-item">Bagphat Football Academy</span>
+    <span class="marquee-dot">⚽</span>
+    <span class="marquee-item">Skill Development</span>
+    <span class="marquee-dot">★</span>
+    <span class="marquee-item">Youth Excellence</span>
+    <span class="marquee-dot">⚽</span>
+    <span class="marquee-item">Champions in the Making</span>
+    <span class="marquee-dot">★</span>
+    <span class="marquee-item">Discipline &amp; Teamwork</span>
+    <span class="marquee-dot">⚽</span>
+    <span class="marquee-item">Bagphat Football Academy</span>
+    <span class="marquee-dot">★</span>
+    <span class="marquee-item">Skill Development</span>
+    <span class="marquee-dot">⚽</span>
+    <span class="marquee-item">Youth Excellence</span>
+    <span class="marquee-dot">★</span>
+    <span class="marquee-item">Champions in the Making</span>
+    <span class="marquee-dot">⚽</span>
+    <span class="marquee-item">Discipline &amp; Teamwork</span>
+    <span class="marquee-dot">★</span>
+  </div>
+</div>
+
+<!-- PROGRAMS -->
+<section id="programs">
+  <div class="programs-header">
+    <div>
+      <div class="section-tag">Training Programs</div>
+      <h2 class="section-title">Choose Your Path</h2>
+    </div>
+    <p style="color:var(--grey);max-width:300px;font-size:0.9rem;line-height:1.7;">
+      Age-appropriate training programs designed to develop every aspect of the game.
+    </p>
+  </div>
+  <div class="programs-grid">
+    <div class="program-card">
+      <div class="program-num">01</div>
+      <div class="program-icon">🌱</div>
+      <div class="program-name">Grassroots</div>
+      <p class="program-desc">Introduction to football fundamentals — dribbling, passing, and the love of the beautiful game. Fun-first approach.</p>
+      <div class="program-age">Ages 5 – 9</div>
+    </div>
+    <div class="program-card">
+      <div class="program-num">02</div>
+      <div class="program-icon">⚡</div>
+      <div class="program-name">Junior Elite</div>
+      <p class="program-desc">Structured technical development with positional awareness, tactical understanding, and competitive match play.</p>
+      <div class="program-age">Ages 10 – 14</div>
+    </div>
+    <div class="program-card">
+      <div class="program-num">03</div>
+      <div class="program-icon">🏆</div>
+      <div class="program-name">Senior Academy</div>
+      <p class="program-desc">High-performance training preparing players for district and state level competitions. Strength, fitness, and tactics.</p>
+      <div class="program-age">Ages 15 – 19</div>
+    </div>
+    <div class="program-card">
+      <div class="program-num">04</div>
+      <div class="program-icon">🥅</div>
+      <div class="program-name">Goalkeeping</div>
+      <p class="program-desc">Specialist goalkeeper training covering shot-stopping, distribution, command of the box, and mental resilience.</p>
+      <div class="program-age">All Ages</div>
+    </div>
+    <div class="program-card">
+      <div class="program-num">05</div>
+      <div class="program-icon">👩‍🦰</div>
+      <div class="program-name">Girls Program</div>
+      <p class="program-desc">Dedicated women's football development with a focus on empowerment, skill, and building a strong team culture.</p>
+      <div class="program-age">Ages 8 – 18</div>
+    </div>
+    <div class="program-card">
+      <div class="program-num">06</div>
+      <div class="program-icon">🎯</div>
+      <div class="program-name">Elite Camps</div>
+      <p class="program-desc">Intensive holiday and weekend camps for players looking to accelerate their development outside of term-time.</p>
+      <div class="program-age">Seasonal</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-visual">
+    <div class="about-box">⚽</div>
+    <div class="about-accent"></div>
+  </div>
+  <div class="about-content">
+    <div class="section-tag">About the Academy</div>
+    <h2 class="section-title">More Than a<br>Football Club</h2>
+    <p class="about-text">
+      Founded in Bagphat, Uttar Pradesh, our academy was built on the belief that every child in the region deserves access to world-class football coaching. We've been shaping players and characters for over 8 years.
+    </p>
+    <p class="about-text">
+      Our certified coaches bring professional experience and a deep passion for developing young talent — not just on the pitch, but as individuals ready for life's challenges.
+    </p>
+    <div class="about-pillars">
+      <div class="pillar">
+        <div class="pillar-name">Technical Skill</div>
+        <div class="pillar-desc">UEFA-standard drills and methodology adapted for Indian football.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-name">Mental Strength</div>
+        <div class="pillar-desc">Building resilience, leadership, and competitive mindset.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-name">Team Culture</div>
+        <div class="pillar-desc">Unity, respect, and working hard for each other every session.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-name">Physical Fitness</div>
+        <div class="pillar-desc">Age-appropriate conditioning, speed, and endurance programs.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COACHES -->
+<section id="coaches">
+  <div class="section-tag">Our Coaching Staff</div>
+  <h2 class="section-title">Learn From the Best</h2>
+  <p class="section-sub">Experienced, passionate coaches dedicated to unlocking every player's potential.</p>
+  <div class="coaches-grid">
+    <div class="coach-card">
+      <div class="coach-avatar">👨‍💼</div>
+      <div class="coach-name">Coach Arjun Singh</div>
+      <div class="coach-role">Head Coach & Founder</div>
+      <p class="coach-bio">Former district-level player with 15+ years of coaching experience. Holds an AFC C Licence and has trained hundreds of youth players across UP.</p>
+    </div>
+    <div class="coach-card">
+      <div class="coach-avatar">👨‍🏫</div>
+      <div class="coach-name">Coach Rahul Verma</div>
+      <div class="coach-role">Technical Director</div>
+      <p class="coach-bio">Specialist in youth development and tactical education. Previously coached with the UP State Football Association's development squad.</p>
+    </div>
+    <div class="coach-card">
+      <div class="coach-avatar">👩‍🏫</div>
+      <div class="coach-name">Coach Priya Sharma</div>
+      <div class="coach-role">Girls Program Lead</div>
+      <p class="coach-bio">Champion of women's football in the region. Priya has developed the Girls Program into one of the most competitive in western UP.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ENROLL CTA -->
+<section id="enroll">
+  <div class="section-tag">Get Started</div>
+  <h2 class="section-title">Ready to Begin?</h2>
+  <p class="section-sub">Register your interest and our team will contact you with all enrollment details, timings, and fees.</p>
+  <div class="enroll-form">
+    <input class="enroll-input" type="text" placeholder="Your name & phone number" />
+    <button class="enroll-btn">Send →</button>
+  </div>
+  <p style="color:rgba(255,255,255,0.35);font-size:0.8rem;margin-top:1rem;">
+    Or call us directly: <strong style="color:rgba(255,255,255,0.6)">+91 98XXX XXXXX</strong>
+  </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">BAGPHAT <span>FOOTBALL</span> ACADEMY</div>
+  <div class="footer-links">
+    <a href="#home">Home</a>
+    <a href="#programs">Programs</a>
+    <a href="#about">About</a>
+    <a href="#coaches">Coaches</a>
+    <a href="#enroll">Enroll</a>
+  </div>
+  <div class="footer-copy">© 2025 Bagphat Football Academy</div>
+</footer>
+
+</body>
+</html>
